@@ -73,6 +73,7 @@ async function correctPackageJsonFiles() {
     const {
       _name,
       _version,
+      _files,
       private: _,
       ...rest
     } = await fs.readJson(packgeJsonPath);
