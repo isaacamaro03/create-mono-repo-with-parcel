@@ -110,6 +110,13 @@ async function installPackages() {
   });
 }
 
+async function runBuild() {
+  await spawnAsync('pnpm build', {
+    stdio: 'inherit',
+    cwd: path.join(workingDirectory, context.appName)
+  });
+}
+
 (async () => {
   try {
     await initContext();
@@ -119,6 +126,7 @@ async function installPackages() {
     await fs.remove(path.join(workingDirectory, 'package'));
     console.log('Project created');
     await installPackages();
+    await runBuild();
     console.log('Done!');
     process.exit(0);
   } catch (e) {
