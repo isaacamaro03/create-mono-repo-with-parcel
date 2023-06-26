@@ -27,6 +27,7 @@ function spawnAsync(cmd, options) {
         resolve(result);
       }
     });
+    child.on('error', (e) => reject(e));
   });
 }
 
@@ -117,8 +118,28 @@ async function runBuild() {
   });
 }
 
+async function checkPnpm() {
+  let exists;
+  try {
+    exists = await spawnAsync('pnpm --version', {
+      stdio: 'pipe'
+    });
+  } catch (e) {
+    exists = false;
+  }
+  if (!exists) {
+    console.log(
+      "This template uses PNPM as it's Package Manager, which you currently do not have installed.\r\n\n" +
+        'Check the installation guide for PNPM: https://pnpm.io/installation\r\n' +
+        'After installing PNPM, start a fresh shell to have access to the global pnpm CLI.'
+    );
+    process.exit(1);
+  }
+}
+
 (async () => {
   try {
+    await checkPnpm();
     await initContext();
     await downloadTemplateTarball();
     await extractPackage();
