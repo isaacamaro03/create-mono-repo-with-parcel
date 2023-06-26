@@ -1,35 +1,21 @@
 #!/usr/bin/env node
 
+import { Command } from 'commander';
+import chalk from 'chalk';
 import fs from 'fs-extra';
 import path from 'path';
-import spawn from 'cross-spawn';
+import spawnAsync from './spawnAsync.mjs';
 
 const workingDirectory = process.cwd();
+const packageJson = JSON.parse(
+  await fs.readFile(new URL('./package.json', import.meta.url))
+);
 
 let context = {
   templatePackage: 'mono-repo-with-parcel-template',
   appName: process.argv[2],
   templatePackageFileName: ''
 };
-
-function spawnAsync(cmd, options) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(cmd, options);
-    let result, error;
-    if (options.stdio === 'pipe') {
-      child.stdout.on('data', (d) => (result = d.toString()));
-      child.stderr.on('data', (d) => (error = d.toString()));
-    }
-    child.once('exit', (code) => {
-      if (code !== 0) {
-        reject(error);
-      } else {
-        resolve(result);
-      }
-    });
-    child.on('error', (e) => reject(e));
-  });
-}
 
 async function initContext() {
   const tarballUrl = await spawnAsync(
@@ -139,6 +125,23 @@ async function checkPnpm() {
 
 (async () => {
   try {
+    const program = new Command(packageJson.name)
+      .version(packageJson.version)
+      .arguments('[project-name]')
+      .usage(`${chalk.green('<project-name>')} [options]`)
+      .allowUnknownOption()
+      .action((projectName) => {
+        context.appName = projectName;
+      });
+
+    program.parse(process.argv);
+
+    if (!context.appName) {
+      console.log(`Please specify the project name:`);
+      console.log(`  ${program.name()} ${chalk.green('<project-name>')}`);
+      process.exit(1);
+    }
+
     await checkPnpm();
     await initContext();
     await downloadTemplateTarball();

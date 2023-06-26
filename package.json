@@ -1,6 +1,6 @@
 {
   "name": "create-mono-repo-with-parcel",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/isaacamaro03/create-mono-repo-with-parcel.git"
@@ -15,6 +15,8 @@
     "create-mono-repo-with-parcel": "./index.mjs"
   },
   "dependencies": {
+    "chalk": "^5.2.0",
+    "commander": "^11.0.0",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^11.1.1"
   },
